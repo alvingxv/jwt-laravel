@@ -148,9 +148,6 @@ return [
         'iss',
         'iat',
         'exp',
-        'nbf',
-        'sub',
-        'jti',
     ],
 
     /*

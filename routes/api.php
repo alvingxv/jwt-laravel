@@ -2,6 +2,9 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\TodoController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -18,13 +21,29 @@ use Illuminate\Support\Facades\Route;
 Route::group([
 
     'middleware' => 'api',
-    'prefix' => 'auth'
 
 ], function ($router) {
 
-    Route::post('login', [App\Http\Controllers\UserController::class, 'login'])->name('login');
-    Route::post('register', [App\Http\Controllers\UserController::class, 'register'])->name('register');
-    Route::post('logout', [App\Http\Controllers\UserController::class, 'logout'])->name('logout');
-    Route::post('refresh', [App\Http\Controllers\UserController::class, 'refresh'])->name('refresh');
-    Route::post('me', [App\Http\Controllers\UserController::class, 'me'])->name('me');
+    Route::group([
+        'prefix' => 'auth'
+    ], function ($router) {
+
+        Route::post('login', [UserController::class, 'login'])->name('login');
+        Route::post('register', [UserController::class, 'register'])->name('register');
+        Route::post('logout', [UserController::class, 'logout'])->name('logout');
+        Route::post('refresh', [UserController::class, 'refresh'])->name('refresh');
+        Route::post('me', [UserController::class, 'me'])->name('me');
+    });
+
+    Route::group([
+        'prefix' => "todo",
+        'middleware' => 'jwt.verify'
+    ], function () {
+
+        Route::get('/', [TodoController::class, 'index'])->name('todo.index');
+        Route::post('/', [TodoController::class, 'store'])->name('todo.store');
+        Route::get('/{id}', [TodoController::class, 'show'])->name('todo.show');
+        Route::put('/{id}', [TodoController::class, 'update'])->name('todo.update');
+        Route::delete('/{id}', [TodoController::class, 'destroy'])->name('todo.destroy');
+    });
 });
