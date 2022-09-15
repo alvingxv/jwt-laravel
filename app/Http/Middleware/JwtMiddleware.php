@@ -11,35 +11,34 @@ use Tymon\JWTAuth\Http\Middleware\BaseMiddleware;
 
 class JwtMiddleware
 {
-
     /**
      * Handle an incoming request.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @return mixed
+     * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
         try {
             $user = JWTAuth::parseToken()->authenticate();
         } catch (Exception $e) {
             if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException) {
-                return $this->sendError('Token is Invalid');
+                return $this->sendErrorToken('Token is Invalid');
             } else if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException) {
-                return $this->sendError('Token is Expired');
+                return $this->sendErrorToken('Token is Expired');
             } else {
-                return $this->sendError('Token is not found');
+                return $this->sendErrorToken('Authorization Token not found');
             }
         }
         return $next($request);
     }
 
-    protected function sendError($error)
+    protected function sendErrorToken($message)
     {
         return response()->json([
             'success' => false,
-            'error' => $error
-        ], Response::HTTP_UNAUTHORIZED);
+            'message' => $message
+        ], Response::HTTP_BAD_REQUEST);
     }
 }

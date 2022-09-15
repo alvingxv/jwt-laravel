@@ -18,32 +18,29 @@ use App\Http\Controllers\TodoController;
 */
 
 
-Route::group([
+Route::group(['prefix' => 'auth'], function ($router) {
 
-    'middleware' => 'api',
-
-], function ($router) {
+    Route::post('login', [UserController::class, 'login'])->name('login');
+    Route::post('register', [UserController::class, 'register'])->name('register');
 
     Route::group([
-        'prefix' => 'auth'
+        'middleware' => 'jwt.verify'
     ], function ($router) {
 
-        Route::post('login', [UserController::class, 'login'])->name('login');
-        Route::post('register', [UserController::class, 'register'])->name('register');
         Route::post('logout', [UserController::class, 'logout'])->name('logout');
         Route::post('refresh', [UserController::class, 'refresh'])->name('refresh');
-        Route::post('me', [UserController::class, 'me'])->name('me');
+        Route::get('me', [UserController::class, 'me'])->name('me');
     });
+});
 
-    Route::group([
-        'prefix' => "todo",
-        'middleware' => 'jwt.verify'
-    ], function () {
-
-        Route::get('/', [TodoController::class, 'index'])->name('todo.index');
-        Route::post('/', [TodoController::class, 'store'])->name('todo.store');
-        Route::get('/{id}', [TodoController::class, 'show'])->name('todo.show');
-        Route::put('/{id}', [TodoController::class, 'update'])->name('todo.update');
-        Route::delete('/{id}', [TodoController::class, 'destroy'])->name('todo.destroy');
-    });
+Route::group([
+    'prefix' => "todo",
+    'middleware' => 'jwt.verify'
+], function () {
+    
+    Route::get('/', [TodoController::class, 'index'])->name('todo.index');
+    Route::post('/', [TodoController::class, 'store'])->name('todo.store');
+    Route::get('/{id}', [TodoController::class, 'show'])->name('todo.show');
+    Route::put('/{id}', [TodoController::class, 'update'])->name('todo.update');
+    Route::delete('/{id}', [TodoController::class, 'destroy'])->name('todo.destroy');
 });
