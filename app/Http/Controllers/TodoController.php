@@ -39,6 +39,7 @@ class TodoController extends Controller
     {
 
         $this->user = JWTAuth::parseToken()->authenticate();
+        JWTAuth::Attempt($request->only('email', 'password'));
         $todo = new Todo([
             'title' => $request->title,
             'description' => $request->description,

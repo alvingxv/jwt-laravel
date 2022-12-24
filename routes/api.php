@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TodoController;
+use App\Http\Controllers\ProfileController;
 
 
 /*
@@ -37,10 +38,23 @@ Route::group([
     'prefix' => "todo",
     'middleware' => 'jwt.verify'
 ], function () {
-    
+
     Route::get('/', [TodoController::class, 'index'])->name('todo.index');
     Route::post('/', [TodoController::class, 'store'])->name('todo.store');
     Route::get('/{id}', [TodoController::class, 'show'])->name('todo.show');
     Route::put('/{id}', [TodoController::class, 'update'])->name('todo.update');
     Route::delete('/{id}', [TodoController::class, 'destroy'])->name('todo.destroy');
+});
+
+
+Route::group([
+    'prefix' => "profile",
+    'middleware' => 'jwt.verify'
+], function () {
+
+    Route::get('/', [ProfileController::class, 'index'])->name('profile.index');
+    Route::post('/', [ProfileController::class, 'store'])->name('profile.store');
+    Route::get('/{id}', [ProfileController::class, 'show'])->name('profile.show');
+    Route::put('/{id}', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/{id}', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });

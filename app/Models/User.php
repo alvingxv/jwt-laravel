@@ -46,4 +46,9 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Todo::class);
     }
 
+    public function profile()
+    {
+        return $this->hasOne(Profile::class);
+    }
+
 }

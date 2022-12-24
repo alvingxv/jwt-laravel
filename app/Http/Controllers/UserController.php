@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Profile;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+
 
 class UserController extends Controller
 {
@@ -33,14 +37,30 @@ class UserController extends Controller
         return $this->respondWithToken($token);
     }
 
-    public function register()
+    public function register(Request $request)
     {
-        $credentials = 
-        [
-            'name' => request('name'),
-            'email' => request('email'),
-            'password' => bcrypt(request('password')),
-        ];
+        //validate
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string',
+            'email' => 'required|string|email|unique:users',
+            'password' => 'required|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sorry, validation error. Please fill all fields.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $credentials =
+            [
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => bcrypt($request->password)
+            ];
+
 
         //user exist
         if (User::where('email', $credentials['email'])->first()) {
@@ -48,6 +68,15 @@ class UserController extends Controller
         }
 
         $user = User::create($credentials);
+
+        if ($request['address'] && $request['phone']) {
+            $profile = new Profile([
+                'address' => $request['address'],
+                'phone' => $request['phone'],
+                'user_id' => $user->id
+            ]);
+            $user->profile()->save($profile);
+        }
 
         return response()->json([
             'success' => true,
